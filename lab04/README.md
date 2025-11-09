@@ -16,6 +16,8 @@
 ### 2. Запуск и первоначальная настройка
 Я запустил контейнер Jenkins с помощью команды `docker-compose up -d jenkins-controller`. После запуска выполнил первоначальную настройку через веб-интерфейс по адресу `http://localhost:8080`.
 
+<img width="1827" height="1080" alt="image" src="https://github.com/user-attachments/assets/23671f13-e340-4574-9221-e50686ef55dc" />
+
 **[СКРИНШОТ 1: Веб-интерфейс Jenkins при первоначальной настройке]**
 
 ### 3. Получение начального пароля
@@ -27,13 +29,15 @@
 В папке `secrets` я сгенерировал SSH ключи с помощью команды `ssh-keygen -f jenkins_agent_ssh_key`.
 
 ### 2. Создание Dockerfile
-Я создал Dockerfile для SSH агента с установкой PHP-CLI, чтобы на агенте можно было запускать PHP скрипты и тесты.
+Cоздал Dockerfile для SSH агента с установкой PHP-CLI, чтобы на агенте можно было запускать PHP скрипты и тесты.
 
 ### 3. Конфигурация SSH Agent в docker-compose.yml
-Я добавил в файл `docker-compose.yml` конфигурацию для сервиса `ssh-agent`. Указал сборку из Dockerfile, передачу публичного ключа через переменную окружения, подключение volume и сети, а также зависимость от сервиса `jenkins-controller`.
+Добавил в файл `docker-compose.yml` конфигурацию для сервиса `ssh-agent`. Указал сборку из Dockerfile, передачу публичного ключа через переменную окружения, подключение volume и сети, а также зависимость от сервиса `jenkins-controller`.
 
 ### 4. Создание .env файла
 Я создал файл `.env` и поместил в него публичный SSH ключ, чтобы он был доступен в контейнере SSH агента.
+
+<img width="433" height="735" alt="image" src="https://github.com/user-attachments/assets/9e6962c0-1525-4aa1-aac0-d495ff21e59b" />
 
 **[СКРИНШОТ 2: Структура папки проекта с secrets, docker-compose.yml и .env файлом]**
 
@@ -44,15 +48,21 @@
 #### Проверка плагина SSH Agents
 В веб-интерфейсе Jenkins я проверил, установлен ли плагин "SSH Agents Plugin". Плагин был уже установлен, поэтому дополнительных действий не потребовалось.
 
+<img width="1827" height="1080" alt="image" src="https://github.com/user-attachments/assets/52905fb3-27d9-4572-9b9f-cf9b6cf83275" />
+
 **[СКРИНШОТ 3: Раздел управления плагинами в Jenkins]**
 
 #### Регистрация SSH ключей
 В разделе Manage Jenkins > Manage Credentials я добавил новый SSH ключ с типом "SSH Username with private key", указал имя пользователя `jenkins` и вставил содержимое приватного ключа из файла `secrets/jenkins_agent_ssh_key`.
 
+<img width="1827" height="1080" alt="image" src="https://github.com/user-attachments/assets/40396e53-1756-4b97-b2b8-4b5cde658139" />
+
 **[СКРИНШОТ 4: Настройки Credentials в Jenkins]**
 
 #### Добавление узла агента
 Я создал новый узел с именем `ssh-agent1`, типом "Permanent Agent", с меткой `php-agent`. Указал remote root directory как `/home/jenkins/agent`, launch method "Launch agents via SSH", хост `ssh-agent` и выбрал ранее добавленные credentials.
+
+<img width="1827" height="1080" alt="image" src="https://github.com/user-attachments/assets/99a22988-9347-497d-8788-999f09e59ca9" />
 
 **[СКРИНШОТ 5: Настройки узла ssh-agent1 в Jenkins]**
 
@@ -70,10 +80,17 @@
 ### 3. Настройка Pipeline в Jenkins
 В Jenkins я создал новый проект типа Pipeline. Указал, что pipeline будет загружаться из SCM (Git), указал URL своего репозитория и путь к Jenkinsfile: `lab04/php_arrays/Jenkinsfile`.
 
-**[СКРИНШОТ 6: Настройки Pipeline в Jenkins]**
+<img width="1827" height="1080" alt="image" src="https://github.com/user-attachments/assets/60f05f89-d66a-411a-88f8-e0b0e9e99496" />
+
+<img width="1827" height="1080" alt="image" src="https://github.com/user-attachments/assets/bffdd5f9-9c8d-42cd-87dc-3fa8c694c508" />
+
+
+**[СКРИНШОТы 6: Настройки Pipeline в Jenkins]**
 
 ### 4. Результаты выполнения
 После настройки я запустил pipeline и убедился, что все стадии выполняются без ошибок. Все 17 unit-тестов были пройдены успешно.
+
+<img width="1827" height="1080" alt="image" src="https://github.com/user-attachments/assets/bb048c17-ff1b-4e74-b791-7ee2a70a9d26" />
 
 **[СКРИНШОТ 7: Успешное выполнение Pipeline со всеми пройденными тестами]**
 
@@ -125,5 +142,7 @@
 ## Заключение
 
 В результате лабораторной работы я успешно настроил среду Jenkins с использованием Docker Compose, создал и запустил pipeline для автоматического тестирования PHP проекта. Все этапы pipeline выполняются корректно, unit-тесты проходят успешно. Работа демонстрирует эффективность использования Jenkins для автоматизации задач DevOps и может служить основой для более сложных CI/CD процессов.
+
+<img width="1827" height="1080" alt="image" src="https://github.com/user-attachments/assets/9258d847-5b56-4bd1-8d87-6570fd075eb5" />
 
 **[СКРИНШОТ 8: Финальный успешный статус Pipeline с зеленой иконкой]**
