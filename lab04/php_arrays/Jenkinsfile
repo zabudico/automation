@@ -44,10 +44,10 @@ pipeline {
             echo 'Pipeline completed'
         }
         success {
-            echo '✅ SUCCESS!'
+            echo ' SUCCESS!'
         }
         failure {
-            echo '❌ FAILED!'
+            echo ' FAILED!'
         }
     }
 }
