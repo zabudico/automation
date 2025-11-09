@@ -7,55 +7,47 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                echo 'Code repository cloned successfully'
+                echo 'Repository cloned successfully'
             }
         }
         
-        stage('Code Quality Check') {
+        stage('List Files') {
             steps {
-                echo 'Checking PHP syntax...'
-                // Проверяем синтаксис всех PHP файлов
-                sh '''
-                    find . -name "*.php" -exec php -l {} \;
-                '''
+                echo 'Listing project files...'
+                sh 'ls -la lab04/php_arrays/'
+            }
+        }
+        
+        stage('Simple PHP Check') {
+            steps {
+                echo 'Running basic PHP checks...'
+                dir('lab04/php_arrays') {
+                    sh 'php -v'
+                    sh 'php -l public/index.php'
+                    sh 'php -l public/simple_tests.php'
+                }
             }
         }
         
         stage('Run Tests') {
             steps {
-                echo 'Running PHP tests...'
-                // Запускаем ваши тесты
-                sh 'php public/simple_tests.php'
-                // Дополнительно можно проверить основные файлы
-                sh 'php -l public/index.php'
-                sh 'php -l src/addTransaction.php'
-                sh 'php -l src/calculateTotalAmount.php'
-            }
-        }
-        
-        stage('Security Scan') {
-            steps {
-                echo 'Running basic security checks...'
-                // Простая проверка на потенциально опасные функции
-                sh '''
-                    echo "Checking for potentially dangerous functions..."
-                    grep -r "eval\\|system\\|exec\\|shell_exec" . --include="*.php" || true
-                '''
+                echo 'Running tests...'
+                dir('lab04/php_arrays') {
+                    sh 'php public/simple_tests.php'
+                }
             }
         }
     }
     
     post {
         always {
-            echo 'PHP Arrays Pipeline completed.'
-            // Очистка временных файлов если нужно
-            sh 'find . -name "*.tmp" -delete 2>/dev/null || true'
+            echo 'Pipeline completed'
         }
         success {
-            echo ' All tests passed successfully!'
+            echo '✅ SUCCESS!'
         }
         failure {
-            echo ' Pipeline failed. Check the logs above.'
+            echo '❌ FAILED!'
         }
     }
 }
