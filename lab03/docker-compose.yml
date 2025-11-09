@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  cron-service:
+    build:
+      context: .
+    container_name: cron-container
+    volumes:
+      - ./data:/app/data
+      - ./logs:/var/log
