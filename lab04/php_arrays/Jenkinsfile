@@ -7,29 +7,33 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                echo 'Automation repository cloned successfully'
+                echo 'Repository cloned successfully'
             }
         }
         
-        stage('Code Quality') {
+        stage('List Files') {
             steps {
-                echo 'Checking PHP syntax...'
+                echo 'Listing project files...'
+                sh 'ls -la lab04/php_arrays/'
+            }
+        }
+        
+        stage('Simple PHP Check') {
+            steps {
+                echo 'Running basic PHP checks...'
                 dir('lab04/php_arrays') {
-                    sh '''
-                        echo "Checking PHP files syntax..."
-                        find . -name "*.php" -exec php -l {} \\;
-                    '''
+                    sh 'php -v'
+                    sh 'php -l public/index.php'
+                    sh 'php -l public/simple_tests.php'
                 }
             }
         }
         
         stage('Run Tests') {
             steps {
-                echo 'Running PHP tests...'
+                echo 'Running tests...'
                 dir('lab04/php_arrays') {
                     sh 'php public/simple_tests.php'
-                    sh 'php -l public/index.php'
-                    sh 'php -l public/simple_tests.php'
                 }
             }
         }
@@ -37,13 +41,13 @@ pipeline {
     
     post {
         always {
-            echo 'PHP Arrays Pipeline completed.'
+            echo 'Pipeline completed'
         }
         success {
-            echo ' All checks passed successfully!'
+            echo ' SUCCESS!'
         }
         failure {
-            echo ' Pipeline failed. Check the logs for errors.'
+            echo ' FAILED!'
         }
     }
 }
