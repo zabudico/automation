@@ -7,40 +7,30 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                echo 'Code repository cloned successfully'
+                echo 'Automation repository cloned successfully'
             }
         }
         
-        stage('Code Quality Check') {
+        stage('Code Quality') {
             steps {
                 echo 'Checking PHP syntax...'
-                // Проверяем синтаксис всех PHP файлов
-                sh '''
-                    find . -name "*.php" -exec php -l {} \;
-                '''
+                dir('lab04/php_arrays') {
+                    sh '''
+                        echo "Checking PHP files syntax..."
+                        find . -name "*.php" -exec php -l {} \\;
+                    '''
+                }
             }
         }
         
         stage('Run Tests') {
             steps {
                 echo 'Running PHP tests...'
-                // Запускаем ваши тесты
-                sh 'php public/simple_tests.php'
-                // Дополнительно можно проверить основные файлы
-                sh 'php -l public/index.php'
-                sh 'php -l src/addTransaction.php'
-                sh 'php -l src/calculateTotalAmount.php'
-            }
-        }
-        
-        stage('Security Scan') {
-            steps {
-                echo 'Running basic security checks...'
-                // Простая проверка на потенциально опасные функции
-                sh '''
-                    echo "Checking for potentially dangerous functions..."
-                    grep -r "eval\\|system\\|exec\\|shell_exec" . --include="*.php" || true
-                '''
+                dir('lab04/php_arrays') {
+                    sh 'php public/simple_tests.php'
+                    sh 'php -l public/index.php'
+                    sh 'php -l public/simple_tests.php'
+                }
             }
         }
     }
@@ -48,14 +38,12 @@ pipeline {
     post {
         always {
             echo 'PHP Arrays Pipeline completed.'
-            // Очистка временных файлов если нужно
-            sh 'find . -name "*.tmp" -delete 2>/dev/null || true'
         }
         success {
-            echo ' All tests passed successfully!'
+            echo ' All checks passed successfully!'
         }
         failure {
-            echo ' Pipeline failed. Check the logs above.'
+            echo ' Pipeline failed. Check the logs for errors.'
         }
     }
 }
