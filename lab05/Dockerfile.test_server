@@ -1,0 +1,33 @@
+FROM ubuntu:22.04
+
+# НЕинтерактивная установка
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Kiev
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt-get update && apt-get install -y \
+    openssh-server \
+    apache2 \
+    php \
+    libapache2-mod-php \
+    php-mbstring \
+    php-xml \
+    php-bcmath \
+    && rm -rf /var/lib/apt/lists/*
+
+# Пользователь ansible + ключ
+RUN useradd -m -s /bin/bash ansible
+RUN usermod -aG sudo ansible
+RUN mkdir -p /home/ansible/.ssh
+COPY secrets/ansible_to_testserver.pub /home/ansible/.ssh/authorized_keys
+# ИСПРАВЛЕНО: убрал лишний -p
+RUN chown -R ansible:ansible /home/ansible/.ssh && \
+    chmod 700 /home/ansible/.ssh && \
+    chmod 600 /home/ansible/.ssh/authorized_keys
+
+# Apache
+RUN a2enmod rewrite
+
+EXPOSE 80 22
+CMD service ssh start && apache2ctl -D FOREGROUND

@@ -1,0 +1,25 @@
+FROM ubuntu:22.04
+
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Kiev
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt-get update && apt-get install -y \
+    openssh-server \
+    ansible \
+    rsync \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir /var/run/sshd
+RUN useradd -m -s /bin/bash jenkins
+
+# SSH-ключ от Jenkins
+RUN mkdir -p /home/jenkins/.ssh
+COPY secrets/jenkins_to_agents.pub /home/jenkins/.ssh/authorized_keys
+COPY secrets/ansible_to_testserver /home/jenkins/.ssh/
+RUN chown -R jenkins:jenkins /home/jenkins/.ssh && chmod 700 /home/jenkins/.ssh && chmod 600 /home/jenkins/.ssh/*
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]

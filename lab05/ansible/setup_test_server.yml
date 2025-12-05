@@ -1,0 +1,58 @@
+---
+- name: Configure test server and deploy php_arrays project
+  hosts: test_servers
+  become: yes
+  tasks:
+    - name: Install Apache + PHP packages
+      apt:
+        name:
+          - apache2
+          - php
+          - libapache2-mod-php
+          - php-mbstring
+          - php-xml
+          - php-bcmath
+        state: present
+        update_cache: yes
+
+    - name: Remove default site
+      file:
+        path: /etc/apache2/sites-enabled/000-default.conf
+        state: absent
+
+    - name: Create project directory
+      file:
+        path: /var/www/php_arrays
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+        recurse: yes
+
+    - name: Deploy virtual host config
+      template:
+        src: templates/myproject.conf
+        dest: /etc/apache2/sites-available/php_arrays.conf
+      notify: restart apache
+
+    - name: Enable our site
+      file:
+        path: /etc/apache2/sites-enabled/php_arrays.conf
+        src: /etc/apache2/sites-available/php_arrays.conf
+        state: link
+      notify: restart apache
+
+    - name: Deploy PHP project from ansible-agent
+      copy:
+        src: /home/jenkins/php_arrays/
+        dest: /var/www/php_arrays/
+        owner: www-data
+        group: www-data
+        mode: preserve
+      notify: restart apache
+
+  handlers:
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted
